@@ -1,0 +1,70 @@
+## PostgreSQL configuration
+##
+global:
+  storageClass: "local-path"  # Use "local-path" for local development
+
+## Enable persistence
+##
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+  volumes:
+    - name: data
+      emptyDir: {}
+  volumeMounts:
+    - name: data
+      mountPath: /bitnami/postgresql
+
+## PostgreSQL credentials
+##
+auth:
+  database: sre-technical-challenge
+  postgresPassword: password
+
+## Disable replication (not needed for local development)
+##
+replication:
+  enabled: false
+
+## Disable metrics (optional)
+##
+metrics:
+  enabled: false
+
+## Disable TLS (optional)
+##
+tls:
+  enabled: false
+
+## Resource limits (adjust based on your local environment)
+##
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+
+## Probes (liveness and readiness)
+##
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+## Service configuration
+##
+service:
+  type: ClusterIP
+  port: 5432

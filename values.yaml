@@ -1,0 +1,48 @@
+# values.yaml
+image:
+  repository: ghcr.io/stordco/sre-technical-challenge
+  tag: latest
+
+env:
+  DATABASE_URL: postgresql://postgres:password@sre-db-postgresql.stord.svc.cluster.local:5432/sre-technical-challenge
+  PHX_HOST: localhost
+  SECRET_KEY_BASE: GWks+00R99rp4iCigXEDAP7WRQXFiTImOP0vIUmFyaNj1DGDXsMvEfSXtb7ITMKC
+  POOL_SIZE: 10
+  PORT: 4000
+
+service:
+  type: ClusterIP
+  port: 80
+
+probes:
+  liveness:
+    path: /_health
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  readiness:
+    path: /_health
+    initialDelaySeconds: 5
+    periodSeconds: 5
+containerSecurityContext:
+  runAsUser: 1001
+  fsGroup: 1001
+primary:
+  persistence:
+    storageClass: "gp2"
+  initContainers:
+    - name: fix-permissions
+      image: busybox
+      command: ["sh", "-c", "chown -R 1001:1001 /bitnami/postgresql/data"]
+      volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql/data
+serviceAccount:
+  create: true 
+  name: ""
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
