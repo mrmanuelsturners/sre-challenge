@@ -10,7 +10,10 @@ spec:
       containers:
         - name: migrate
           image: ghcr.io/stordco/sre-technical-challenge:latest
-          command: ["bin/sre-technical-challenge", "migrate"]
+          command: ["./sre_technical_challenge", "eval", "Application.ensure_all_started(:sre_technical_challenge); Ecto.Migrator.run(SreTechnicalChallenge.Repo, :up, all: true)"]
+
+
+
           env:
             - name: DATABASE_URL
               value: postgresql://postgres:password@sre-db-postgresql.stord.svc.cluster.local:5432/sre-technical-challenge
