@@ -1,14 +1,17 @@
-# values.yaml
 image:
   repository: ghcr.io/stordco/sre-technical-challenge
   tag: latest
 
+# Non-sensitive environment variables
 env:
   DATABASE_URL: postgresql://postgres:password@sre-db-postgresql.stord.svc.cluster.local:5432/sre-technical-challenge
   PHX_HOST: localhost
-  SECRET_KEY_BASE: GWks+00R99rp4iCigXEDAP7WRQXFiTImOP0vIUmFyaNj1DGDXsMvEfSXtb7ITMKC
   POOL_SIZE: 10
   PORT: 4000
+
+# Sensitive environment variables (secrets)
+secrets:
+  SECRET_KEY_BASE: GWks+00R99rp4iCigXEDAP7WRQXFiTImOP0vIUmFyaNj1DGDXsMvEfSXtb7ITMKC
 
 service:
   type: ClusterIP
@@ -23,9 +26,11 @@ probes:
     path: /_health
     initialDelaySeconds: 5
     periodSeconds: 5
+
 containerSecurityContext:
   runAsUser: 1001
   fsGroup: 1001
+
 primary:
   persistence:
     storageClass: "gp2"
@@ -36,9 +41,11 @@ primary:
       volumeMounts:
         - name: data
           mountPath: /bitnami/postgresql/data
+
 serviceAccount:
-  create: true 
+  create: true
   name: ""
+
 resources:
   requests:
     memory: "512Mi"

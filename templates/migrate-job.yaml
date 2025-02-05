@@ -1,27 +1,22 @@
-# templates/migrate-job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: sre-app-sre-technical-challenge-migrate
-  namespace: stord
+  name: {{ include "sre-app.fullname" . }}-migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
 spec:
   template:
     spec:
       containers:
         - name: migrate
-          image: ghcr.io/stordco/sre-technical-challenge:latest
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["./sre_technical_challenge", "eval", "Application.ensure_all_started(:sre_technical_challenge); Ecto.Migrator.run(SreTechnicalChallenge.Repo, :up, all: true)"]
-
-          env:
-            - name: DATABASE_URL
-              value: postgresql://postgres:password@sre-db-postgresql.stord.svc.cluster.local:5432/sre-technical-challenge
-            - name: PHX_HOST
-              value: localhost
-            - name: POOL_SIZE
-              value: "10"
-            - name: PORT
-              value: "4000"
-            - name: SECRET_KEY_BASE
-              value: GWks+00R99rp4iCigXEDAP7WRQXFiTImOP0vIUmFyaNj1DGDXsMvEfSXtb7ITMKC
+          envFrom:
+            - configMapRef:
+                name: {{ include "sre-app.fullname" . }}-config
+            - secretRef:
+                name: {{ include "sre-app.fullname" . }}-secrets
       restartPolicy: Never
   backoffLimit: 4
